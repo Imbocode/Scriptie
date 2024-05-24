@@ -1,0 +1,85 @@
+from transformers import WhisperProcessor, WhisperForConditionalGeneration
+from datasets import load_dataset
+import tensorflow as tf
+import torch
+import numpy as np
+import re
+import librosa
+from Levenshtein import distance as lev
+import nltk
+import os
+processor = WhisperProcessor.from_pretrained("openai/whisper-small")
+model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small")
+model.config.forced_decoder_ids = None
+WAV_DIR = "/mnt/c/Users/imbo9/Documents/wavfiles16kHz/TEST"
+PHN_DIR = "mnt/c/Users/imbo9/Documents/adaptedphns"
+ 
+list_of_wavs = []
+list_of_phns = []
+
+for file in os.listdir(WAV_DIR):
+    if file.endswith(".WAV"):
+        file_path = os.path.join(WAV_DIR, file)
+        list_of_wavs.append(file_path)
+for file in os.listdir(PHN_DIR):
+    if file.endswith(".PHN"):
+        file_path = os.path.join(PHN_DIR, file)
+        list_of_phns.append(file_path)
+list_of_phns = sorted(list_of_phns)
+
+list_of_dr_1 = []
+list_of_dr_2 = []
+list_of_dr_3 = []
+list_of_dr_4 = []
+list_of_dr_5 = []
+list_of_dr_6 = []
+list_of_dr_7 = []
+list_of_dr_8 = []
+new_wav_list = []
+for wav_file in list_of_wavs:
+    dr_pattern = re.search("(DR\d)\w+[.]WAV",wav_file)
+    if dr_pattern.group(1) == "DR1":
+        if len(list_of_dr_1) <= 125:
+            list_of_dr_1.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR2":
+        if len(list_of_dr_2) <= 125:
+            list_of_dr_2.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR3":
+        if len(list_of_dr_3) <= 125:
+            list_of_dr_3.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR4":
+        if len(list_of_dr_4) <= 125:
+            list_of_dr_4.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR5":
+        if len(list_of_dr_5) <= 125:
+            list_of_dr_5.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR6":
+        if len(list_of_dr_6) <= 125:
+            list_of_dr_6.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR7":
+        if len(list_of_dr_7) <= 125:
+            list_of_dr_7.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR8":
+        if len(list_of_dr_8) <= 125:
+            list_of_dr_8.append(wav_file)
+            new_wav_list.append(wav_file)
+list_of_sentences = []
+for phn_file in list_of_phns:
+    list_of_groups = []
+    test_file = open(phn_file, "r")
+    for line in test_file:
+        pattern_list = re.findall("[a-z]+", line)
+        sentence = " ".join(pattern_list)
+        list_of_sentences.append(sentence)
+    test_file.close()
+wav_input_list = []
+librosa_loads = []
+for wav_file in new_wav_list: 
+    

@@ -1,0 +1,216 @@
+import os
+import re
+list_of_phns = []
+
+phn_directory = "/mnt/c/Users/imbo9/Documents/adaptedphns"
+PHN_DIR = "/mnt/c/Users/imbo9/Documents/PHN/TEST"
+
+for file in os.listdir(PHN_DIR):
+    if file.endswith(".PHN"):
+        file_path = os.path.join(PHN_DIR, file)
+        list_of_phns.append(file_path)
+
+if not os.path.exists(phn_directory):
+    os.makedirs(phn_directory)
+
+phn_list_of_dr_1 = []
+phn_list_of_dr_2 = []
+phn_list_of_dr_3 = []
+phn_list_of_dr_4 = []
+phn_list_of_dr_5 = []
+phn_list_of_dr_6 = []
+phn_list_of_dr_7 = []
+phn_list_of_dr_8 = []
+new_phn_list = []
+
+for file in list_of_phns:
+    dr_pattern = re.search("(DR\d)\w+[.]PHN",file)
+    if dr_pattern.group(1) == "DR1":
+        if len(phn_list_of_dr_1) <= 125:
+            phn_list_of_dr_1.append(file)
+            new_phn_list.append(file)
+    if dr_pattern.group(1) == "DR2":
+        if len(phn_list_of_dr_2) <= 125:
+            phn_list_of_dr_2.append(file)
+            new_phn_list.append(file)
+    if dr_pattern.group(1) == "DR3":
+        if len(phn_list_of_dr_3) <= 125:
+            phn_list_of_dr_3.append(file)
+            new_phn_list.append(file)
+    if dr_pattern.group(1) == "DR4":
+        if len(phn_list_of_dr_4) <= 125:
+            phn_list_of_dr_4.append(file)
+            new_phn_list.append(file)
+    if dr_pattern.group(1) == "DR5":
+        if len(phn_list_of_dr_5) <= 125:
+            phn_list_of_dr_5.append(file)
+            new_phn_list.append(file)
+    if dr_pattern.group(1) == "DR6":
+        if len(phn_list_of_dr_6) <= 125:
+            phn_list_of_dr_6.append(file)
+            new_phn_list.append(file)
+    if dr_pattern.group(1) == "DR7":
+        if len(phn_list_of_dr_7) <= 125:
+            phn_list_of_dr_7.append(file)
+            new_phn_list.append(file)
+    if dr_pattern.group(1) == "DR8":
+        if len(phn_list_of_dr_8) <= 125:
+            phn_list_of_dr_8.append(file)
+            new_phn_list.append(file)
+
+for phn_file in new_phn_list:
+     file_pattern = re.search("(DR\d)(\w+)[.]PHN",phn_file)
+     filename = file_pattern.group(0)
+     file_path = phn_directory + f"/{filename}"
+     list_of_groups = []
+     phn_test_file = open(phn_file, "r")
+     phn_new_file = open(file_path, "w")
+     for line in phn_test_file:
+         pattern = re.search("\d+ \d+ ([a-z#]+)", line)
+         group_of_line = pattern.group(1)
+         hash_h = re.sub("h#","",group_of_line)
+         aa = re.sub("ao","aa",hash_h)
+         ah = re.sub("ax","ah",aa)
+         axh = re.sub("ax-h","ah",ah)
+         er = re.sub("a[xh]r","er",axh)
+         hh = re.sub("hv","hh",er)
+         ih = re.sub("ix","ih",hh)
+         l = re.sub("el","l",ih)
+         m = re.sub("em","m",l)
+         en = re.sub("en","n",m)
+         n = re.sub("nx","n",en)
+         ng = re.sub("eng","ng",n)
+         sh = re.sub("zh","sh",ng)
+         uw = re.sub("ux","uw",sh)
+         b_d_g_k_p_t = re.sub("[bdgkpt]cl","",uw)
+         sil = re.sub("sil","",b_d_g_k_p_t)
+         pau = re.sub("pau","",sil)
+         epi = re.sub("epi","",pau)
+         q = re.sub("q","",epi)
+     list_of_groups.append(q)  
+     sentence = " ".join(list_of_groups)
+     phn_new_file.write(sentence)
+     phn_test_file.close()
+     phn_new_file.close()
+
+import torch
+import librosa
+from datasets import load_dataset
+from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
+import tensorflow
+import re
+import os
+import leven
+import numpy as np
+from Levenshtein import distance as lev
+import nltk
+
+LANG_ID = "en"
+MODEL_ID = "jonatasgrosman/wav2vec2-large-xlsr-53-english"
+SAMPLES = 10
+WAV_DIR = "/mnt/c/Users/imbo9/Documents/wavfiles16kHz/TEST"
+PHN_DIR = "mnt/c/Users/imbo9/Documents/adaptedphns"
+list_of_wavs = []
+list_of_phns = []
+
+for file in list_of_wavs:
+    dr_pattern = re.search("(DR\d)\w+[.]WAV",file)
+    if dr_pattern.group(1) == "DR1":
+        if len(list_of_dr_1) <= 125:
+            list_of_dr_1.append(file)
+            new_wav_list.append(file)
+    if dr_pattern.group(1) == "DR2":
+        if len(list_of_dr_2) <= 125:
+            list_of_dr_2.append(file)
+            new_wav_list.append(file)
+    if dr_pattern.group(1) == "DR3":
+        if len(list_of_dr_3) <= 125:
+            list_of_dr_3.append(file)
+            new_wav_list.append(file)
+    if dr_pattern.group(1) == "DR4":
+        if len(list_of_dr_4) <= 125:
+            list_of_dr_4.append(file)
+            new_wav_list.append(file)
+    if dr_pattern.group(1) == "DR5":
+        if len(list_of_dr_5) <= 125:
+            list_of_dr_5.append(file)
+            new_wav_list.append(file)
+    if dr_pattern.group(1) == "DR6":
+        if len(list_of_dr_6) <= 125:
+            list_of_dr_6.append(file)
+            new_wav_list.append(file)
+    if dr_pattern.group(1) == "DR7":
+        if len(list_of_dr_7) <= 125:
+            list_of_dr_7.append(file)
+            new_wav_list.append(file)
+    if dr_pattern.group(1) == "DR8":
+        if len(list_of_dr_7) <= 125:
+            list_of_dr_8.append(file)
+            new_wav_list.append(file)
+
+for wav_file in new_wav_list:
+    speech_array, sampling_rate = librosa.load(wav_file, sr=16_000)
+    input_n = processor([speech_array], sampling_rate=16_000, return_tensors="pt", padding=True)
+    with torch.no_grad():
+        logits = model(input_n.input_values, attention_mask=input_n.attention_mask).logits
+    predicted_ids = torch.argmax(logits, dim=-1)
+    predicted_sentences = processor.batch_decode(predicted_ids)
+    for predicted_sentence in predicted_sentences: #i, enumerate
+        print("-" * 100)
+        print("Reference:", list_of_sentences[k])
+        print("Prediction:", predicted_sentence)
+        predicted_words = predicted_sentence.split()
+        sentence_in_phones = []
+        clean_arpabet_list = []
+        for word in predicted_words: 
+            arpabet = nltk.corpus.cmudict.dict()
+            try:
+                word_in_phones = " ".join(arpabet[word][0])
+                sentence_in_phones.append(word_in_phones)
+            except Exception as e:
+                print(e)
+        predicted_phone_sentence = " ".join(sentence_in_phones)
+        lower_predicted_phone_sentence = predicted_phone_sentence.lower()
+        phone_pattern = re.findall(" \w+", lower_predicted_phone_sentence)
+        phone_start_pattern = re.search("^\w+", lower_predicted_phone_sentence)
+        start_pattern = phone_start_pattern.group(0)
+        phone_pattern = [start_pattern] + phone_pattern
+        phone_end_pattern = re.search("\w+$", lower_predicted_phone_sentence)
+        end_pattern = phone_end_pattern.group(0) 
+        phone_pattern[-1] = end_pattern
+        for phone in phone_pattern:
+            ow = re.sub("ow\d","ow",phone)
+            ae = re.sub("ae\d","ae",ow)
+            iy = re.sub("iy\d","iy",ae)
+            uw = re.sub("uw\d","uw",iy)
+            oy = re.sub("oy\d","oy",uw)
+            ay = re.sub("ay\d","ay",oy)
+            er = re.sub("er\d","er",ay)
+            ao = re.sub("ao\d","ao",er)
+            ah = re.sub("ah\d","ah",ao)
+            ih = re.sub("ih\d","ih",ah)
+            aw = re.sub("aw\d","aw",ih)
+            uh = re.sub("uh\d","uh",aw)
+            aa = re.sub("aa\d","aa",uh)
+            eh = re.sub("eh\d","eh",aa)
+            ey = re.sub("ey\d","ey",eh)
+            ao_aa = re.sub("ao","aa",ey)
+            ax_ah = re.sub("ax","ah",ao_aa)
+            ax_er = re.sub("a[xh]r","er",ax_ah)
+            ix_ih = re.sub("ix","ih",ax_er)
+            l = re.sub("el","l",ix_ih)
+            m = re.sub("em","m",l)
+            en = re.sub("en","n",m)
+            n = re.sub("nx","n",en)
+            sh = re.sub("zh","sh",n)
+            clean_phone = re.sub("ux","uw",sh)
+            clean_arpabet_list.append(clean_phone)
+        clean_phone_transcription = "".join(clean_arpabet_list)
+        lined_clean_phone_transcription = clean_phone_transcription[:-1] + " " + clean_phone_transcription[-1]
+        print("Prediction in phones:", lined_clean_phone_transcription)
+        distance = lev(lined_clean_phone_transcription, list_of_sentences[k])
+        print("Number of phones:", str(len(lined_clean_phone_transcription)) + " , " + str(len(list_of_sentences[k])))
+        print(distance)
+        percentage = 100 * distance/len(list_of_sentences[k])
+        print(str(percentage) + "%")
+    k += 1

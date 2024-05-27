@@ -131,4 +131,81 @@ for wav_file in new_wav_list:
     librosa_loads.append(speech_array) 
 test_dataset = librosa_loads
 for i in range(len(test_dataset)):
-    wav_input_features = 	processor(test_dataset[i],sampling_rate=16000,return_tensors="pt").input_features
+    wav_input_features = processor(test_dataset[i],sampling_rate=16000,return_tensors="pt").input_features
+    predicted_ids = model.generate(wav_input_features)
+    predicted_sentences = processor.batch_decode(predicted_ids, skip_special_tokens=True)
+    predicted_sentence = predicted_sentences[0].lower()
+    print("-" * 100)
+    print("Reference:", list_of_sentences[i])
+    print("Prediction:", predicted_sentence)
+
+    predicted_words = predicted_sentence.split()
+    sentence_in_phones = []
+    clean_arpabet_list = []
+    for word in predicted_words: 
+        comma_pattern = re.findall("\w+[,]+", word) 
+        if len(comma_pattern) > 0:
+            for comma_word in comma_pattern:
+                comma_word_pattern = re.search("(\w+)[,]+",comma_word)
+                word_without_comma = comma_word_pattern.group(1)
+                new_word = re.sub(comma_word_pattern.group(0),word_without_comma,comma_word)
+                word = new_word
+        dot_pattern = re.search("(\w+)[.]+",word)
+        if dot_pattern:
+            word_without_dot = dot_pattern.group(1)
+            word = word_without_dot
+        question_mark_pattern = re.search("(\w+)\\?+",word)
+        if question_mark_pattern:
+            word_without_question_mark = question_mark_pattern.group(1)
+            word = word_without_question_mark
+        arpabet = nltk.corpus.cmudict.dict()
+        try:
+             word_in_phones = " ".join(arpabet[word][0])
+             sentence_in_phones.append(word_in_phones)
+        except Exception as e:
+            print(e)
+predicted_phone_sentence = " ".join(sentence_in_phones)
+lower_predicted_phone_sentence = predicted_phone_sentence.lower()
+phone_pattern = re.findall(" \w+", lower_predicted_phone_sentence)
+phone_start_pattern = re.search("^\w+", lower_predicted_phone_sentence)
+start_pattern = phone_start_pattern.group(0)
+phone_pattern = [start_pattern] + phone_pattern
+phone_end_pattern = re.search("\w+$", lower_predicted_phone_sentence)
+end_pattern = phone_end_pattern.group(0)  
+phone_pattern[-1] = end_pattern
+    
+for phone in phone_pattern:
+    ow = re.sub("ow\d","ow",phone)
+    ae = re.sub("ae\d","ae",ow)
+    iy = re.sub("iy\d","iy",ae)
+    uw = re.sub("uw\d","uw",iy)
+    oy = re.sub("oy\d","oy",uw)
+    ay = re.sub("ay\d","ay",oy)
+    er = re.sub("er\d","er",ay)
+    ao = re.sub("ao\d","ao",er)
+    ah = re.sub("ah\d","ah",ao)
+    ih = re.sub("ih\d","ih",ah)
+    aw = re.sub("aw\d","aw",ih)
+    uh = re.sub("uh\d","uh",aw)
+    aa = re.sub("aa\d","aa",uh)
+    eh = re.sub("eh\d","eh",aa)
+    ey = re.sub("ey\d","ey",eh)
+    ao_aa = re.sub("ao","aa",ey)
+    ax_ah = re.sub("ax","ah",ao_aa)
+    ax_er = re.sub("a[xh]r","er",ax_ah)
+    ix_ih = re.sub("ix","ih",ax_er)
+    l = re.sub("el","l",ix_ih)
+    m = re.sub("em","m",l)
+    en = re.sub("en","n",m)
+    n = re.sub("nx","n",en)
+    sh = re.sub("zh","sh",n)
+    clean_phone = re.sub("ux","uw",sh)
+    clean_arpabet_list.append(clean_phone)
+    clean_phone_transcription = "".join(clean_arpabet_list)
+    lined_clean_phone_transcription = clean_phone_transcription[:-1] + " " + clean_phone_transcription[-1]
+    print("Prediction in phones:", lined_clean_phone_transcription)
+    distance = lev(lined_clean_phone_transcription, list_of_sentences[i])
+    print("Number of phones:", str(len(lined_clean_phone_transcription)) + " , " + 	str(len(list_of_sentences[i])))
+    print(distance)
+    percentage = 100 * distance/len(list_of_sentences[i])
+    print(str(percentage) + "%")

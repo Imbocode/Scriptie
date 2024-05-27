@@ -82,4 +82,53 @@ for phn_file in list_of_phns:
 wav_input_list = []
 librosa_loads = []
 for wav_file in new_wav_list: 
-    
+    dr_pattern = re.search("(DR\d)\w+[.]WAV",wav_file)
+    if dr_pattern.group(1) == "DR1":
+        if len(list_of_dr_1) <= 125:
+            list_of_dr_1.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR2":
+        if len(list_of_dr_2) <= 125:
+            list_of_dr_2.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR3":
+        if len(list_of_dr_3) <= 125:
+            list_of_dr_3.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR4":
+        if len(list_of_dr_4) <= 125:
+            list_of_dr_4.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR5":
+        if len(list_of_dr_5) <= 125:
+            list_of_dr_5.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR6":
+        if len(list_of_dr_6) <= 125:
+            list_of_dr_6.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR7":
+        if len(list_of_dr_7) <= 125:
+            list_of_dr_7.append(wav_file)
+            new_wav_list.append(wav_file)
+    if dr_pattern.group(1) == "DR8":
+        if len(list_of_dr_8) <= 125:
+            list_of_dr_8.append(wav_file)
+            new_wav_list.append(wav_file)
+list_of_sentences = []
+for phn_file in list_of_phns:
+    list_of_groups = []
+    test_file = open(phn_file, "r")
+    for line in test_file:
+        pattern_list = re.findall("[a-z]+", line)     
+        sentence = " ".join(pattern_list)
+        list_of_sentences.append(sentence)
+    test_file.close()
+wav_input_list = []
+librosa_loads = []
+for wav_file in new_wav_list: 
+    speech_array, sampling_rate = librosa.load(wav_file, sr=16_000)
+    librosa_loads.append(speech_array) 
+test_dataset = librosa_loads
+for i in range(len(test_dataset)):
+    wav_input_features = 	processor(test_dataset[i],sampling_rate=16000,return_tensors="pt").input_features
